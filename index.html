@@ -23,18 +23,19 @@
 
     <div class="xl:mx-32 md:mx-16 sm:mx-8 mx-2">
         <div>
-            <h1 class="mt-10 mb-2 text-center font-bold sm:text-xl text-base">Grafik Dinamis Data Ekspor Bulanan
+            <h1 class="mt-10 mb-1 text-center font-bold md:text-2xl sm:text-xl text-base">Grafik Dinamis Data Ekspor
+                Bulanan
                 Provinsi
                 Gorontalo</h1>
             <div class="mb-3">
-                <p>Pilih Tanggal :</p>
+                <p class="font-bold">Pilih Tanggal :</p>
                 <label for="from">Dari : </label>
                 <select class="select-tag w-40 pr-20" name="from" id="from"></select>
                 <label class="sm:ml-10 ml-2" for="to">Sampai : </label>
                 <select class="select-tag w-40" name="to" id="to"></select>
             </div>
             <div>
-                <p>Model Polinomial Orde 3 :</p>
+                <p class="font-bold">Model Polinomial Orde 3 :</p>
                 <p id="model">y = 0.21x^3 + -20.62x^2 + 2149.61x + 940366.5</p>
                 <p>R<sub>2</sub> = <span id="r2">0.01</span>
                 </p>
@@ -43,13 +44,15 @@
             <canvas class="mt-2" id="chart1"></canvas>
         </div>
         <div>
-            <h1 class="mt-16 mb-2 text-center font-bold sm:text-xl text-base">Grafik Distribusi Data Ekspor Bulanan
+            <h1 class="mt-16 mb-4 text-center font-bold md:text-2xl sm:text-xl text-base">Grafik Distribusi Data Ekspor
+                Bulanan
                 Provinsi
                 Gorontalo Tahun 2009 - 2021</h1>
             <canvas id="chart3"></canvas>
         </div>
         <div>
-            <h1 class="mt-16 mb-2 text-center font-bold sm:text-xl text-base">Grafik Distribusi Data Ekspor Tahunan
+            <h1 class="mt-16 mb-4 text-center font-bold md:text-2xl sm:text-xl text-base">Grafik Distribusi Data Ekspor
+                Tahunan
                 Provinsi
                 Gorontalo Untuk Setiap Bulan</h1>
             <canvas id="chart2"></canvas>
