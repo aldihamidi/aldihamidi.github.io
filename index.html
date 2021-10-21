@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="src/js/chart.js"></script>
+    <script src="src/js/jquery.min.js"></script>
+    <script src="src/js/regression.min.js"></script>
+    <script src="src/js/select2.min.js"></script>
+    <link rel="stylesheet" href="src/css/tailwind.css">
+    <link href="src/css/select2.min.css" rel="stylesheet" />
+    <title>Ekspor Gorontalo</title>
+</head>
+
+<body>
+    <header class="bg-gray-700">
+        <h1 class="text-white text-center py-4 md:text-3xl sm:text-2xl text-xl font-bold">Visualisasi Grafik Data Ekspor
+            Provinsi
+            Gorontalo</h1>
+    </header>
+
+    <div class="xl:mx-32 md:mx-16 sm:mx-8 mx-2">
+        <div>
+            <h1 class="mt-10 mb-2 text-center font-bold sm:text-xl text-base">Grafik Dinamis Data Ekspor Bulanan
+                Provinsi
+                Gorontalo</h1>
+            <div class="mb-3">
+                <p>Pilih Tanggal :</p>
+                <label for="from">Dari : </label>
+                <select class="select-tag w-40 pr-20" name="from" id="from"></select>
+                <label class="sm:ml-10 ml-2" for="to">Sampai : </label>
+                <select class="select-tag w-40" name="to" id="to"></select>
+            </div>
+            <div>
+                <p>Model Polinomial Orde 3 :</p>
+                <p id="model">y = 0.21x^3 + -20.62x^2 + 2149.61x + 940366.5</p>
+                <p>R<sub>2</sub> = <span id="r2">0.01</span>
+                </p>
+            </div>
+
+            <canvas class="mt-2" id="chart1"></canvas>
+        </div>
+        <div>
+            <h1 class="mt-16 mb-2 text-center font-bold sm:text-xl text-base">Grafik Distribusi Data Ekspor Bulanan
+                Provinsi
+                Gorontalo Tahun 2009 - 2021</h1>
+            <canvas id="chart3"></canvas>
+        </div>
+        <div>
+            <h1 class="mt-16 mb-2 text-center font-bold sm:text-xl text-base">Grafik Distribusi Data Ekspor Tahunan
+                Provinsi
+                Gorontalo Untuk Setiap Bulan</h1>
+            <canvas id="chart2"></canvas>
+        </div>
+    </div>
+
+    <footer class="mt-10 pb-6 pt-4 sm:text-base text-xs text-white bg-gray-900 text-center">
+        Oleh Aldi Hamidi
+    </footer>
+</body>
+
+<script>
+    let ctx1 = document.getElementById('chart1').getContext('2d'),
+        ctx2 = document.getElementById('chart2').getContext('2d'),
+        ctx3 = document.getElementById('chart3').getContext('2d'),
+        opt = ''
+
+    $(".select-tag").select2()
+
+    const labels = ['Januari 2009', 'Februari 2009', 'Maret 2009', 'April 2009', 'Mei 2009', 'Juni 2009', 'Juli 2009',
+            'Agustus 2009', 'September 2009', 'Oktober 2009', 'November 2009', 'Desember 2009', 'Januari 2010',
+            'Februari 2010', 'Maret 2010', 'April 2010', 'Mei 2010', 'Juni 2010', 'Juli 2010', 'Agustus 2010',
+            'September 2010', 'Oktober 2010', 'November 2010', 'Desember 2010', 'Januari 2011', 'Februari 2011',
+            'Maret 2011', 'April 2011', 'Mei 2011', 'Juni 2011', 'Juli 2011', 'Agustus 2011', 'September 2011',
+            'Oktober 2011', 'November 2011', 'Desember 2011', 'Januari 2012', 'Februari 2012', 'Maret 2012',
+            'April 2012', 'Mei 2012', 'Juni 2012', 'Juli 2012', 'Agustus 2012', 'September 2012', 'Oktober 2012',
+            'November 2012', 'Desember 2012', 'Januari 2013', 'Februari 2013', 'Maret 2013', 'April 2013', 'Mei 2013',
+            'Juni 2013', 'Juli 2013', 'Agustus 2013', 'September 2013', 'Oktober 2013', 'November 2013',
+            'Desember 2013', 'Januari 2014', 'Februari 2014', 'Maret 2014', 'April 2014', 'Mei 2014', 'Juni 2014',
+            'Juli 2014', 'Agustus 2014', 'September 2014', 'Oktober 2014', 'November 2014', 'Desember 2014',
+            'Januari 2015', 'Februari 2015', 'Maret 2015', 'April 2015', 'Mei 2015', 'Juni 2015', 'Juli 2015',
+            'Agustus 2015', 'September 2015', 'Oktober 2015', 'November 2015', 'Desember 2015', 'Januari 2016',
+            'Februari 2016', 'Maret 2016', 'April 2016', 'Mei 2016', 'Juni 2016', 'Juli 2016', 'Agustus 2016',
+            'September 2016', 'Oktober 2016', 'November 2016', 'Desember 2016', 'Januari 2017', 'Februari 2017',
+            'Maret 2017', 'April 2017', 'Mei 2017', 'Juni 2017', 'Juli 2017', 'Agustus 2017', 'September 2017',
+            'Oktober 2017', 'November 2017', 'Desember 2017', 'Januari 2018', 'Februari 2018', 'Maret 2018',
+            'April 2018', 'Mei 2018', 'Juni 2018', 'Juli 2018', 'Agustus 2018', 'September 2018', 'Oktober 2018',
+            'November 2018', 'Desember 2018', 'Januari 2019', 'Februari 2019', 'Maret 2019', 'April 2019', 'Mei 2019',
+            'Juni 2019', 'Juli 2019', 'Agustus 2019', 'September 2019', 'Oktober 2019', 'November 2019',
+            'Desember 2019', 'Januari 2020', 'Februari 2020', 'Maret 2020', 'April 2020', 'Mei 2020', 'Juni 2020',
+            'Juli 2020', 'Agustus 2020', 'September 2020', 'Oktober 2020', 'November 2020', 'Desember 2020',
+            'Januari 2021', 'Februari 2021', 'Maret 2021', 'April 2021', 'Mei 2021', 'Juni 2021', 'Juli 2021',
+            'Agustus 2021'
+        ],
+        data1 = [2400622, 603149, 1585712, 1535352, 1579875, 1976147, 31930, 61496, 574310, 979333, 31385, 1411799,
+            1547099, 33990, 875537, 1395354, 440000, 1419857, 1460256, 2086628, 2547323, 878013, 16870, 1647112, 0, 0,
+            0, 595000, 655672, 638250, 613396, 0, 1818622, 920000, 39876, 0, 1342276, 1096000, 477000, 1220556, 627100,
+            2795064, 1507483, 1040000, 217030, 664400, 1338371, 1436841, 0, 0, 0, 595000, 655672, 638250, 613396, 0,
+            1818622, 920000, 39876, 0, 0, 43270, 0, 1380051, 0, 1167446, 0, 2742359, 598400, 1100000, 5465711, 2542158,
+            1699604, 585200, 2308867, 2966626, 5211743, 7904022, 1750853, 4029319, 3243673, 29605, 1624346, 27918, 0,
+            870000, 390140, 0, 9130, 15010, 5056, 1045089, 846014, 0, 1127864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1050450, 0,
+            525057, 1050045, 1014475, 2957250, 11036900, 8092898, 1834800, 4543300, 1907400, 0, 0, 997500, 0, 1219880,
+            0, 0, 0, 0, 1995082, 0, 0, 0, 1919652, 0, 0, 0, 0, 0, 0, 0, 2945100, 1461789, 5244008, 1593900, 2000162, 0,
+            1800000, 0, 1280000, 0, 0, 1838561, 2452651, 2590011, 6234235
+        ],
+        data2 = [940366.5, 942495.7, 944584.92, 946635.42, 948648.46, 950625.3, 952567.2, 954475.42, 956351.22,
+            958195.86, 960010.6, 961796.7, 963555.42, 965288.02, 966995.76, 968679.9, 970341.7, 971982.42,
+            973603.3200000001, 975205.66, 976790.7, 978359.7, 979913.92, 981454.62, 982983.06, 984500.5, 986008.2,
+            987507.42, 988999.42, 990485.46, 991966.8, 993444.7, 994920.42, 996395.22, 997870.36, 999347.1, 1000826.7,
+            1002310.42, 1003799.52, 1005295.26, 1006798.9, 1008311.7, 1009834.92, 1011369.8200000001, 1012917.66,
+            1014479.7, 1016057.2, 1017651.42, 1019263.62, 1020895.06, 1022547, 1024220.7, 1025917.42, 1027638.42,
+            1029384.96, 1031158.3, 1032959.7, 1034790.42, 1036651.72, 1038544.86, 1040471.1, 1042431.7, 1044427.92,
+            1046461.02, 1048532.26, 1050642.9, 1052794.2, 1054987.42, 1057223.82, 1059504.66, 1061831.2, 1064204.7,
+            1066626.42, 1069097.6199999999, 1071619.56, 1074193.5, 1076820.7, 1079502.42, 1082239.92, 1085034.46,
+            1087887.3, 1090799.7, 1093772.92, 1096808.22, 1099906.86, 1103070.1, 1106299.2, 1109595.42, 1112960.02,
+            1116394.26, 1119899.4, 1123476.7, 1127127.42, 1130852.82, 1134654.16, 1138532.7, 1142489.7, 1146526.42,
+            1150644.12, 1154844.06, 1159127.5, 1163495.7, 1167949.92, 1172491.42, 1177121.46, 1181841.3, 1186652.2,
+            1191555.42, 1196552.22, 1201643.8599999999, 1206831.6, 1212116.7, 1217500.42, 1222984.02, 1228568.76,
+            1234255.9, 1240046.7, 1245942.42, 1251944.3199999998, 1258053.6600000001, 1264271.7, 1270599.7, 1277038.92,
+            1283590.62, 1290256.06, 1297036.5, 1303933.2, 1310947.42, 1318080.42, 1325333.46, 1332707.8, 1340204.7,
+            1347825.42, 1355571.22, 1363443.3599999999, 1371443.1, 1379571.7, 1387830.42, 1396220.52, 1404743.26,
+            1413399.9, 1422191.7, 1431119.92, 1440185.82, 1449390.6600000001, 1458735.7, 1468222.2, 1477851.42,
+            1487624.6199999999, 1497543.06, 1507608, 1517820.7
+        ],
+        totalDuration = 2000,
+        delayBetweenPoints = totalDuration / data1.length,
+        previousY = (ctx1) => ctx1.index === 0 ? ctx1.chart.scales.y.getPixelForValue(100) : ctx1.chart.getDatasetMeta(
+            ctx1
+            .datasetIndex).data[ctx1.index - 1].getProps(['y'], true).y,
+        animation = {
+            x: {
+                type: 'number',
+                easing: 'linear',
+                duration: delayBetweenPoints,
+                from: NaN,
+                delay(ctx1) {
+                    if (ctx1.type !== 'data' || ctx1.xStarted) {
+                        return 0;
+                    }
+                    ctx1.xStarted = true;
+                    return ctx1.index * delayBetweenPoints;
+                }
+            },
+            y: {
+                type: 'number',
+                easing: 'linear',
+                duration: delayBetweenPoints,
+                from: previousY,
+                delay(ctx1) {
+                    if (ctx1.type !== 'data' || ctx1.yStarted) {
+                        return 0;
+                    }
+                    ctx1.yStarted = true;
+                    return ctx1.index * delayBetweenPoints;
+                }
+            },
+            onComplete: function () {
+                delete chart1.config.options.animation
+            }
+        }
+
+    labels.forEach(function (val, i) {
+        opt += `<option value="${val}">${val}</option>`
+    })
+
+    $('#from').prepend(opt)
+    $('#to').prepend(opt)
+    $('#to').val($('#to option:last').val())
+
+    const dataChart = {
+            labels: ['2009', '2010', '2011', '2012', '2013', '2014', '2015',
+                '2016', '2017', '2018', '2019', '2020', '2021'
+            ],
+            datasets: [{
+                label: 'Januari',
+                fill: false,
+                backgroundColor: 'rgb(255,255,0)',
+                borderColor: 'rgb(255,255,0)',
+                data: data1.filter((x, i) => i % 12 == 0),
+                radius: 0
+            }, {
+                label: 'Februari',
+                fill: false,
+                backgroundColor: 'rgb(255,165,0)',
+                borderColor: 'rgb(255,165,0)',
+                data: data1.filter((x, i) => i % 12 == 1),
+                radius: 0
+            }, {
+                label: 'Maret',
+                fill: false,
+                backgroundColor: 'rgb(204,0,34)',
+                borderColor: 'rgb(204,0,34)',
+                data: data1.filter((x, i) => i % 12 == 2),
+                radius: 0
+            }, {
+                label: 'April',
+                fill: false,
+                backgroundColor: 'rgb(255,0,255)',
+                borderColor: 'rgb(255,0,255)',
+                data: data1.filter((x, i) => i % 12 == 3),
+                radius: 0
+            }, {
+                label: 'Mei',
+                fill: false,
+                backgroundColor: 'rgb(0,0,255)',
+                borderColor: 'rgb(0,0,255)',
+                data: data1.filter((x, i) => i % 12 == 4),
+                radius: 0
+            }, {
+                label: 'Juni',
+                fill: false,
+                backgroundColor: 'rgb(0,0,0)',
+                borderColor: 'rgb(0,0,0)',
+                data: data1.filter((x, i) => i % 12 == 5),
+                radius: 0
+            }, {
+                label: 'Juli',
+                fill: false,
+                backgroundColor: 'rgb(5,255,5)',
+                borderColor: 'rgb(5,255,5)',
+                data: data1.filter((x, i) => i % 12 == 6),
+                radius: 0
+            }, {
+                label: 'Agustus',
+                fill: false,
+                backgroundColor: 'rgb(44,105,141)',
+                borderColor: 'rgb(44,105,141)',
+                data: data1.filter((x, i) => i % 12 == 7),
+                radius: 0
+            }, {
+                label: 'September',
+                fill: false,
+                backgroundColor: 'rgb(103,145,134)',
+                borderColor: 'rgb(103,145,134)',
+                data: data1.filter((x, i) => i % 12 == 8),
+                radius: 0
+            }, {
+                label: 'Oktober',
+                fill: false,
+                backgroundColor: 'rgb(100,55,159)',
+                borderColor: 'rgb(100,55,159)',
+                data: data1.filter((x, i) => i % 12 == 9),
+                radius: 0
+            }, {
+                label: 'November',
+                fill: false,
+                backgroundColor: 'rgb(26,192,198)',
+                borderColor: 'rgb(26,192,198)',
+                data: data1.filter((x, i) => i % 12 == 10),
+                radius: 0
+            }, {
+                label: 'Desember',
+                fill: false,
+                backgroundColor: 'rgb(58,158,253)',
+                borderColor: 'rgb(58,158,253)',
+                data: data1.filter((x, i) => i % 12 == 11),
+                radius: 0
+            }]
+        },
+        dataChart1 = {
+            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
+                'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ],
+            datasets: [{
+                label: '2009',
+                fill: false,
+                backgroundColor: 'rgb(255,255,0)',
+                borderColor: 'rgb(255,255,0)',
+                data: data1.slice(0, 12),
+                radius: 0
+            }, {
+                label: '2010',
+                fill: false,
+                backgroundColor: 'rgb(255,165,0)',
+                borderColor: 'rgb(255,165,0)',
+                data: data1.slice(12, 24),
+                radius: 0
+            }, {
+                label: '2011',
+                fill: false,
+                backgroundColor: 'rgb(204,0,34)',
+                borderColor: 'rgb(204,0,34)',
+                data: data1.slice(24, 36),
+                radius: 0
+            }, {
+                label: '2012',
+                fill: false,
+                backgroundColor: 'rgb(255,0,255)',
+                borderColor: 'rgb(255,0,255)',
+                data: data1.slice(36, 48),
+                radius: 0
+            }, {
+                label: '2013',
+                fill: false,
+                backgroundColor: 'rgb(0,0,255)',
+                borderColor: 'rgb(0,0,255)',
+                data: data1.slice(48, 60),
+                radius: 0
+            }, {
+                label: '2014',
+                fill: false,
+                backgroundColor: 'rgb(0,0,0)',
+                borderColor: 'rgb(0,0,0)',
+                data: data1.slice(60, 72),
+                radius: 0
+            }, {
+                label: '2015',
+                fill: false,
+                backgroundColor: 'rgb(5,255,5)',
+                borderColor: 'rgb(5,255,5)',
+                data: data1.slice(72, 84),
+                radius: 0
+            }, {
+                label: '2016',
+                fill: false,
+                backgroundColor: 'rgb(44,105,141)',
+                borderColor: 'rgb(44,105,141)',
+                data: data1.slice(84, 96),
+                radius: 0
+            }, {
+                label: '2017',
+                fill: false,
+                backgroundColor: 'rgb(103,145,134)',
+                borderColor: 'rgb(103,145,134)',
+                data: data1.slice(96, 108),
+                radius: 0
+            }, {
+                label: '2018',
+                fill: false,
+                backgroundColor: 'rgb(100,55,159)',
+                borderColor: 'rgb(100,55,159)',
+                data: data1.slice(108, 120),
+                radius: 0
+            }, {
+                label: '2019',
+                fill: false,
+                backgroundColor: 'rgb(26,192,198)',
+                borderColor: 'rgb(26,192,198)',
+                data: data1.slice(120, 132),
+                radius: 0
+            }, {
+                label: '2020',
+                fill: false,
+                backgroundColor: 'rgb(58,158,253)',
+                borderColor: 'rgb(58,158,253)',
+                data: data1.slice(132, 144),
+                radius: 0
+            }, {
+                label: '2021',
+                fill: false,
+                backgroundColor: 'rgb(245,72,127)',
+                borderColor: 'rgb(245,72,127)',
+                data: data1.slice(144, 152),
+                radius: 0
+            }]
+        },
+        dataChart2 = {
+            labels: labels,
+            datasets: [{
+                label: 'Model Regresi',
+                fill: false,
+                backgroundColor: 'rgb(253,18,18)',
+                borderColor: 'rgb(253,18,18)',
+                data: data2,
+                cubicInterpolationMode: 'monotone',
+                tension: 0.4,
+                radius: 0
+            }, {
+                label: 'Data Ekspor',
+                fill: true,
+                backgroundColor: 'rgb(33,26,235)',
+                borderColor: 'rgb(33,26,235)',
+                data: data1,
+                radius: 0
+            }]
+        },
+        config1 = {
+            type: 'line',
+            data: dataChart2,
+            options: {
+                responsive: true,
+                animation,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Tanggal'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Harga (US $)'
+                        },
+                        max: 11200000
+                    }
+                }
+            },
+        },
+        config2 = {
+            type: 'bar',
+            data: dataChart1,
+            options: {
+                responsive: true,
+                plugins: {},
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Bulan'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Harga (US $)'
+                        }
+                    }
+                }
+            },
+        },
+        config3 = {
+            type: 'bar',
+            data: dataChart,
+            options: {
+                responsive: true,
+                plugins: {},
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Tahun'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Harga (US $)'
+                        }
+                    }
+                }
+            },
+        }
+
+    let chart1 = new Chart(ctx1, config1)
+    let chart2 = new Chart(ctx2, config2)
+    let chart3 = new Chart(ctx3, config3)
+
+    let indexFrom = 0,
+        indexTo = data1.length - 1,
+        funChangeTgl = (par) => {
+            let tempt
+            labels.forEach(function (val, i) {
+                if (par === 'from') {
+                    if (val === $('#from').val()) {
+                        tempt = i
+                    }
+                } else {
+                    if (val === $('#to').val()) {
+                        tempt = i
+                    }
+                }
+            })
+
+            if (par === 'from') {
+                if (tempt + 2 > indexTo) {
+                    alert('Rentang waktu minimal 2 hari')
+                    $('#from').val(selectedFrom.val())
+                    return
+                } else {
+                    selectedFrom = $("#from option:selected")
+                    indexFrom = tempt
+                }
+            } else {
+                if (tempt - 2 < indexFrom) {
+                    alert('Rentang waktu minimal 2 hari')
+                    $('#to').val(selectedTo.val())
+                    return
+                } else {
+                    selectedTo = $("#to option:selected")
+                    indexTo = tempt
+                }
+            }
+
+            let newLabels = labels.slice(indexFrom, indexTo + 1),
+                newData1 = data1.slice(indexFrom, indexTo + 1),
+                dataReg = [],
+                newData2 = []
+
+            newData1.forEach(function (val, i) {
+                dataReg.push([i, newData1[i]])
+            })
+            let reg = regression.polynomial(dataReg, {
+                    order: 3
+                }),
+                eq = reg.equation
+
+            newData1.forEach(function (val, i) {
+                let results = Math.pow(i, 3) * eq[0] + Math.pow(i, 2) * eq[1] + i * eq[2] + eq[3]
+                newData2.push(results)
+            })
+
+            chart1.config.data.labels = newLabels
+            chart1.config.data.datasets[1].data = newData1
+            chart1.config.data.datasets[0].data = newData2
+
+            chart1.update()
+            $('#model').text(reg.string)
+            $('#r2').text(reg.r2)
+        }
+
+    $('#from').change(function (e) {
+        funChangeTgl('from')
+    })
+
+    $('#to').change(function (e) {
+        funChangeTgl('to')
+    })
+</script>
+
+</html>
